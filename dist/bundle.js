@@ -72,23 +72,71 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(1);
 
 
-const scene = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Scene */]();
-const camera = new __WEBPACK_IMPORTED_MODULE_0_three__["d" /* PerspectiveCamera */]( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const scene = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* Scene */]();
+scene.background = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Color */]().setHSL( 0.6, 0, 1 );
+scene.fog = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Fog */]( scene.background, 1, 1000 );
+const camera = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* PerspectiveCamera */]( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-const renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* WebGLRenderer */]();
+const renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* WebGLRenderer */]();
 renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.shadowMap.enabled = true;
 document.body.appendChild( renderer.domElement );
 
-var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["a" /* BoxGeometry */]( 1, 1, 1 );
-var material = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* MeshBasicMaterial */]( { color: 0x00ff00 } );
-var cube = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Mesh */]( geometry, material );
+const geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["a" /* BoxGeometry */]( 1, 1, 1 );
+const material = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshPhongMaterial */]( { color: 0x00ff00 } );
+const cube = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* Mesh */]( geometry, material );
+cube.position.set(0,2,0);
+cube.castShadow = true;
+cube.receiveShadow = true;
 scene.add( cube );
 
-camera.position.z = 5;
+var hemiLight = new __WEBPACK_IMPORTED_MODULE_0_three__["g" /* HemisphereLight */](0xffffff, 0xffffff, 0.6 );
+hemiLight.color.setHSL( 0.6, 1, 0.6 );
+hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+hemiLight.position.set(0, 6, 0);
+scene.add( hemiLight );
+
+const hemiLightHelper = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* HemisphereLightHelper */]( hemiLight, 1 );
+scene.add( hemiLightHelper );
+
+
+const directionalLight = new __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DirectionalLight */]( 0xffffff, 1 );
+
+directionalLight.color.setHSL( 0.1, 1, 0.95 );
+directionalLight.position.set( -2, 3, 0 );
+scene.add( directionalLight );
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+const d = 5;
+directionalLight.shadow.camera.left = -d;
+directionalLight.shadow.camera.right = d;
+directionalLight.shadow.camera.top = d;
+directionalLight.shadow.camera.bottom = -d
+directionalLight.shadow.camera.far = 3500;
+directionalLight.shadow.bias = -0.0001;
+const directionalLightHelper = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* DirectionalLightHelper */]( directionalLight, 10 )
+scene.add( directionalLightHelper );
+
+const cameraHelper = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* CameraHelper */]( directionalLight.shadow.camera );
+scene.add( cameraHelper );
+
+const groundGeo = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* PlaneBufferGeometry */]( 1000, 1000 );
+const groundMat = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshPhongMaterial */]( { color: 0xffffff, specular: 0x050505 } );
+groundMat.color.setHSL( 0.095, 1, 0.75 );
+
+const ground = new __WEBPACK_IMPORTED_MODULE_0_three__["i" /* Mesh */]( groundGeo, groundMat );
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -6;
+ground.receiveShadow = true;
+scene.add( ground );
+
+camera.position.z = 10;
 
 function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
+  cube.rotation.x += 0.03;
 }
 animate();
 
@@ -100,21 +148,21 @@ animate();
 "use strict";
 /* unused harmony export WebGLRenderTargetCube */
 /* unused harmony export WebGLRenderTarget */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return WebGLRenderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return WebGLRenderer; });
 /* unused harmony export ShaderLib */
 /* unused harmony export UniformsLib */
 /* unused harmony export UniformsUtils */
 /* unused harmony export ShaderChunk */
 /* unused harmony export FogExp2 */
-/* unused harmony export Fog */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return Scene; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return Fog; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return Scene; });
 /* unused harmony export LensFlare */
 /* unused harmony export Sprite */
 /* unused harmony export LOD */
 /* unused harmony export SkinnedMesh */
 /* unused harmony export Skeleton */
 /* unused harmony export Bone */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Mesh; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return Mesh; });
 /* unused harmony export LineSegments */
 /* unused harmony export LineLoop */
 /* unused harmony export Line */
@@ -149,14 +197,14 @@ animate();
 /* unused harmony export SpotLight */
 /* unused harmony export PointLight */
 /* unused harmony export RectAreaLight */
-/* unused harmony export HemisphereLight */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return HemisphereLight; });
 /* unused harmony export DirectionalLightShadow */
-/* unused harmony export DirectionalLight */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return DirectionalLight; });
 /* unused harmony export AmbientLight */
 /* unused harmony export LightShadow */
 /* unused harmony export Light */
 /* unused harmony export StereoCamera */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return PerspectiveCamera; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return PerspectiveCamera; });
 /* unused harmony export OrthographicCamera */
 /* unused harmony export CubeCamera */
 /* unused harmony export ArrayCamera */
@@ -216,19 +264,19 @@ animate();
 /* unused harmony export Vector3 */
 /* unused harmony export Vector2 */
 /* unused harmony export Quaternion */
-/* unused harmony export Color */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return Color; });
 /* unused harmony export ImmediateRenderObject */
 /* unused harmony export VertexNormalsHelper */
 /* unused harmony export SpotLightHelper */
 /* unused harmony export SkeletonHelper */
 /* unused harmony export PointLightHelper */
 /* unused harmony export RectAreaLightHelper */
-/* unused harmony export HemisphereLightHelper */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return HemisphereLightHelper; });
 /* unused harmony export GridHelper */
 /* unused harmony export PolarGridHelper */
 /* unused harmony export FaceNormalsHelper */
-/* unused harmony export DirectionalLightHelper */
-/* unused harmony export CameraHelper */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DirectionalLightHelper; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return CameraHelper; });
 /* unused harmony export BoxHelper */
 /* unused harmony export Box3Helper */
 /* unused harmony export PlaneHelper */
@@ -269,7 +317,7 @@ animate();
 /* unused harmony export RingGeometry */
 /* unused harmony export RingBufferGeometry */
 /* unused harmony export PlaneGeometry */
-/* unused harmony export PlaneBufferGeometry */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return PlaneBufferGeometry; });
 /* unused harmony export LatheGeometry */
 /* unused harmony export LatheBufferGeometry */
 /* unused harmony export ShapeGeometry */
@@ -292,13 +340,13 @@ animate();
 /* unused harmony export PointsMaterial */
 /* unused harmony export MeshPhysicalMaterial */
 /* unused harmony export MeshStandardMaterial */
-/* unused harmony export MeshPhongMaterial */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return MeshPhongMaterial; });
 /* unused harmony export MeshToonMaterial */
 /* unused harmony export MeshNormalMaterial */
 /* unused harmony export MeshLambertMaterial */
 /* unused harmony export MeshDepthMaterial */
 /* unused harmony export MeshDistanceMaterial */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MeshBasicMaterial; });
+/* unused harmony export MeshBasicMaterial */
 /* unused harmony export LineDashedMaterial */
 /* unused harmony export LineBasicMaterial */
 /* unused harmony export Material */
