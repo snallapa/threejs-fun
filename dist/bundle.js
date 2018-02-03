@@ -103,7 +103,7 @@ scene.add( hemiLightHelper );
 const directionalLight = new __WEBPACK_IMPORTED_MODULE_0_three__["d" /* DirectionalLight */]( 0xffffff, 1 );
 
 directionalLight.color.setHSL( 0.1, 1, 0.95 );
-directionalLight.position.set( -2, 3, 0 );
+directionalLight.position.set( -1.5, 3, 0 );
 scene.add( directionalLight );
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
@@ -137,6 +137,7 @@ function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
   cube.rotation.x += 0.03;
+  cube.rotation.y += 0.01;
 }
 animate();
 
