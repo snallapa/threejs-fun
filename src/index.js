@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+const FULL_CIRCLE = Math.PI * 2;
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
 scene.fog = new THREE.Fog( scene.background, 1, 1000 );
@@ -10,13 +12,55 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 document.body.appendChild( renderer.domElement );
 
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+//I WILL ATTEMPT TO MAKE A TORUS
+const geometry = new THREE.Geometry();
+
+const circles = 30;
+const pointsOnCircles = 30;
+
+const tubeSize = 1;
+const radius = 3;
+
+const vertices = [];
+
+//create vertices
+
+for (let i = 0; i < circles; i++) {
+  for (let j = 0; j < pointsOnCircles; j++) {
+    const tubeAngle = (i / circles) * FULL_CIRCLE;
+    const circleAngle = (j / pointsOnCircles) * FULL_CIRCLE;
+    const x = (radius + tubeSize * Math.cos(circleAngle)) * Math.cos(tubeAngle);
+    const y = (radius + tubeSize * Math.cos(circleAngle)) * Math.sin(tubeAngle);
+    const z = tubeSize * Math.sin(circleAngle);
+    geometry.vertices.push(new THREE.Vector3(x, y, z));
+  }
+}
+
+//create faces
+for (let i = 0; i < circles; i++) {
+  for (let j = 0; j < pointsOnCircles; j++) {
+    const currentCircle = pointsOnCircles * i;
+    const nextCircle = ((i + 1) % circles) * pointsOnCircles;
+    const nextPointIndex = ((j + 1) % pointsOnCircles);
+
+    //create a square with two triangle faces from one circle to the next
+
+    geometry.faces.push(new THREE.Face3(j + currentCircle,
+      nextCircle + j,
+      nextCircle + nextPointIndex));
+    geometry.faces.push(new THREE.Face3(j + currentCircle,
+      currentCircle + nextPointIndex,
+      nextCircle + nextPointIndex));
+  }
+}
+geometry.computeBoundingSphere();
+
 const material = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-const cube = new THREE.Mesh( geometry, material );
-cube.position.set(0,2,0);
-cube.castShadow = true;
-cube.receiveShadow = true;
-scene.add( cube );
+const sphere = new THREE.Mesh( geometry, material );
+sphere.position.set(0,2,0);
+sphere.castShadow = true;
+sphere.receiveShadow = true;
+scene.add( sphere );
 
 var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6 );
 hemiLight.color.setHSL( 0.6, 1, 0.6 );
@@ -64,7 +108,7 @@ camera.position.z = 10;
 function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
-  cube.rotation.x += 0.03;
-  cube.rotation.y += 0.01;
+  sphere.rotation.x += 0.003;
+  //sphere.rotation.y += 0.01;
 }
 animate();
