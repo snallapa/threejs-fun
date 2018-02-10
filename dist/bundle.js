@@ -74,12 +74,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 const FULL_CIRCLE = Math.PI * 2;
 
-const scene = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* Scene */]();
+const scene = new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* Scene */]();
 scene.background = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Color */]().setHSL( 0.6, 0, 1 );
 scene.fog = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Fog */]( scene.background, 1, 1000 );
-const camera = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* PerspectiveCamera */]( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const camera = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* PerspectiveCamera */]( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-const renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* WebGLRenderer */]();
+const renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["q" /* WebGLRenderer */]();
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 document.body.appendChild( renderer.domElement );
@@ -87,8 +87,8 @@ document.body.appendChild( renderer.domElement );
 //I WILL ATTEMPT TO MAKE A TORUS
 const geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["g" /* Geometry */]();
 
-const circles = 30;
-const pointsOnCircles = 30;
+const circles = 360;
+const pointsOnCircles = 360;
 
 const tubeSize = 1;
 const radius = 3;
@@ -104,7 +104,7 @@ for (let i = 0; i < circles; i++) {
     const x = (radius + tubeSize * Math.cos(circleAngle)) * Math.cos(tubeAngle);
     const y = (radius + tubeSize * Math.cos(circleAngle)) * Math.sin(tubeAngle);
     const z = tubeSize * Math.sin(circleAngle);
-    geometry.vertices.push(new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* Vector3 */](x, y, z));
+    geometry.vertices.push(new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* Vector3 */](x, y, z));
   }
 }
 
@@ -120,14 +120,17 @@ for (let i = 0; i < circles; i++) {
     geometry.faces.push(new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Face3 */](j + currentCircle,
       nextCircle + j,
       nextCircle + nextPointIndex));
-    geometry.faces.push(new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Face3 */](j + currentCircle,
-      currentCircle + nextPointIndex,
+    geometry.faces.push(new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Face3 */](currentCircle + nextPointIndex,
+      j + currentCircle,
       nextCircle + nextPointIndex));
   }
 }
-geometry.computeBoundingSphere();
 
-const material = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshPhongMaterial */]( { color: 0x00ff00 } );
+geometry.computeBoundingSphere();
+geometry.computeFaceNormals();
+geometry.mergeVertices();
+
+const material = new __WEBPACK_IMPORTED_MODULE_0_three__["l" /* MeshStandardMaterial */]( { color: 0x00ff00 } );
 const sphere = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* Mesh */]( geometry, material );
 sphere.position.set(0,2,0);
 sphere.castShadow = true;
@@ -165,7 +168,7 @@ scene.add( directionalLightHelper );
 const cameraHelper = new __WEBPACK_IMPORTED_MODULE_0_three__["a" /* CameraHelper */]( directionalLight.shadow.camera );
 scene.add( cameraHelper );
 
-const groundGeo = new __WEBPACK_IMPORTED_MODULE_0_three__["m" /* PlaneBufferGeometry */]( 1000, 1000 );
+const groundGeo = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* PlaneBufferGeometry */]( 1000, 1000 );
 const groundMat = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* MeshPhongMaterial */]( { color: 0xffffff, specular: 0x050505 } );
 groundMat.color.setHSL( 0.095, 1, 0.75 );
 
@@ -193,14 +196,14 @@ animate();
 "use strict";
 /* unused harmony export WebGLRenderTargetCube */
 /* unused harmony export WebGLRenderTarget */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return WebGLRenderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return WebGLRenderer; });
 /* unused harmony export ShaderLib */
 /* unused harmony export UniformsLib */
 /* unused harmony export UniformsUtils */
 /* unused harmony export ShaderChunk */
 /* unused harmony export FogExp2 */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return Fog; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return Scene; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return Scene; });
 /* unused harmony export LensFlare */
 /* unused harmony export Sprite */
 /* unused harmony export LOD */
@@ -249,7 +252,7 @@ animate();
 /* unused harmony export LightShadow */
 /* unused harmony export Light */
 /* unused harmony export StereoCamera */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return PerspectiveCamera; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return PerspectiveCamera; });
 /* unused harmony export OrthographicCamera */
 /* unused harmony export CubeCamera */
 /* unused harmony export ArrayCamera */
@@ -306,7 +309,7 @@ animate();
 /* unused harmony export Line3 */
 /* unused harmony export Euler */
 /* unused harmony export Vector4 */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return Vector3; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return Vector3; });
 /* unused harmony export Vector2 */
 /* unused harmony export Quaternion */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Color; });
@@ -362,7 +365,7 @@ animate();
 /* unused harmony export RingGeometry */
 /* unused harmony export RingBufferGeometry */
 /* unused harmony export PlaneGeometry */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return PlaneBufferGeometry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return PlaneBufferGeometry; });
 /* unused harmony export LatheGeometry */
 /* unused harmony export LatheBufferGeometry */
 /* unused harmony export ShapeGeometry */
@@ -384,7 +387,7 @@ animate();
 /* unused harmony export ShaderMaterial */
 /* unused harmony export PointsMaterial */
 /* unused harmony export MeshPhysicalMaterial */
-/* unused harmony export MeshStandardMaterial */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return MeshStandardMaterial; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return MeshPhongMaterial; });
 /* unused harmony export MeshToonMaterial */
 /* unused harmony export MeshNormalMaterial */
