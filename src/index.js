@@ -15,8 +15,8 @@ document.body.appendChild( renderer.domElement );
 //I WILL ATTEMPT TO MAKE A TORUS
 const geometry = new THREE.Geometry();
 
-const circles = 30;
-const pointsOnCircles = 30;
+const circles = 360;
+const pointsOnCircles = 360;
 
 const tubeSize = 1;
 const radius = 3;
@@ -48,14 +48,17 @@ for (let i = 0; i < circles; i++) {
     geometry.faces.push(new THREE.Face3(j + currentCircle,
       nextCircle + j,
       nextCircle + nextPointIndex));
-    geometry.faces.push(new THREE.Face3(j + currentCircle,
-      currentCircle + nextPointIndex,
+    geometry.faces.push(new THREE.Face3(currentCircle + nextPointIndex,
+      j + currentCircle,
       nextCircle + nextPointIndex));
   }
 }
-geometry.computeBoundingSphere();
 
-const material = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
+geometry.computeBoundingSphere();
+geometry.computeFaceNormals();
+geometry.mergeVertices();
+
+const material = new THREE.MeshStandardMaterial( { color: 0x00ff00 } );
 const sphere = new THREE.Mesh( geometry, material );
 sphere.position.set(0,2,0);
 sphere.castShadow = true;
