@@ -82,7 +82,7 @@ scene.background = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Color */]().se
 scene.fog = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Fog */]( scene.background, 1, 1000 );
 const camera = new __WEBPACK_IMPORTED_MODULE_0_three__["k" /* PerspectiveCamera */]( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-const renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* WebGLRenderer */]();
+const renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["p" /* WebGLRenderer */]();
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 document.body.appendChild( renderer.domElement );
@@ -137,11 +137,16 @@ geometry.computeBoundingSphere();
 geometry.computeFaceNormals();
 geometry.mergeVertices();
 */
-const geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* SphereGeometry */](2,180, 180);
-//const geometry = new THREE.TorusGeometry(3, 1, 360, 18);
-const material = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]( { color: 0x00ff00 } );
+//const geometry = new THREE.SphereGeometry(2,180, 180);
+const circles = 72;
+const pointsOnCircle = 12;
+const geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* TorusGeometry */](10, 1, pointsOnCircle, circles);
+geometry.computeFaceNormals();
+// color: 0x00ff00
+const material = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]( {color: 0x00ff00} );
 const sphere = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Mesh */]( geometry, material );
-sphere.position.set(0,2,0);
+sphere.position.set(0,1,0);
+sphere.rotation.x = Math.PI / 2;
 sphere.castShadow = true;
 sphere.receiveShadow = true;
 scene.add( sphere );
@@ -159,12 +164,12 @@ scene.add( hemiLightHelper );
 const directionalLight = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* DirectionalLight */]( 0xffffff, 1 );
 
 directionalLight.color.setHSL( 0.1, 1, 0.95 );
-directionalLight.position.set( -1.5, 3, 0 );
+directionalLight.position.set( -8, 12, 0 );
 scene.add( directionalLight );
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
-const d = 5;
+const d = 15;
 directionalLight.shadow.camera.left = -d;
 directionalLight.shadow.camera.right = d;
 directionalLight.shadow.camera.top = d;
@@ -187,23 +192,60 @@ ground.position.y = -6;
 ground.receiveShadow = true;
 scene.add( ground );
 
-camera.position.z = 10;
+camera.position.set(0,10,20);
+camera.lookAt(new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* Vector3 */](0,0,0));
 
 const vectors = sphere.geometry.vertices.length;
+console.log(sphere.geometry.vertices);
 let random = Math.floor(Math.random() * vectors);
 const original = sphere.geometry.vertices.map((item) => ({x: item.x, y: item.y, z: item.z}));
-console.log(original);
+console.log(sphere.geometry);
+
+let randomAnimate = true;
+
+const update = () => { sphere.geometry.verticesNeedUpdate = true; };
+
+function animateCircle(circleNumber, scalar) {
+  const startVertex = circleNumber;
+  for (let i = 0; i < pointsOnCircle; i++) {
+    const currentVertexIndex = startVertex + i * circles;
+    const currentVertex = sphere.geometry.vertices[currentVertexIndex];
+    sphere.geometry.colors[startVertex + i * circleNumber] = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Color */]( 0xff0000 );
+    const normal = sphere.geometry.faces.filter((face) => face.a === currentVertexIndex || face.b === currentVertexIndex)[0].normal;
+    const next = currentVertex.clone().add(normal.clone().multiplyScalar(scalar));
+    //const next = currentVertex.clone().multiplyScalar(1.5);
+    __WEBPACK_IMPORTED_MODULE_1_gsap__["TweenLite"].to(currentVertex, 0.2, {x: next.x, y: next.y, z: next.z , onComplete: (position) => {
+      __WEBPACK_IMPORTED_MODULE_1_gsap__["TweenLite"].to(sphere.geometry.vertices[position], 0.2, {x: original[position].x,
+        y: original[position].y,
+        z: original[position].z,
+        onUpdate: update,
+        onComplete: () => {randomAnimate = true;}
+      });
+    }, onCompleteParams: [currentVertexIndex]
+    , onUpdate: update,});
+  }
+}
+
+function animateRegion(number) {
+  const a = number - 1 < 0 ? circles - 1 : number - 1;
+  const b = number;
+  const c = (number + 1) % circles;
+  animateCircle(a, 1.3);
+  animateCircle(b, 1.5);
+  animateCircle(c, 1.3);
+}
+
+function randomRegion() {
+  return Math.floor(Math.random() * circles);
+}
+
 function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
-
-  random = Math.floor(Math.random() * vectors);
-  let current = sphere.geometry.vertices[random];
-  let next = current.clone().multiplyScalar(1.5);
-  __WEBPACK_IMPORTED_MODULE_1_gsap__["TweenLite"].to(current, 1, {x: next.x, y: next.y, z: next.z , onComplete: (random) => {
-    __WEBPACK_IMPORTED_MODULE_1_gsap__["TweenLite"].to(sphere.geometry.vertices[random], 1, {x: original[random].x, y: original[random].y, z: original[random].z});
-  }, onCompleteParams: [random]});
-  sphere.geometry.verticesNeedUpdate = true;
+  if (randomAnimate) {
+    animateRegion(randomRegion());
+    randomAnimate = false;
+  }
 }
 animate();
 
@@ -215,7 +257,7 @@ animate();
 "use strict";
 /* unused harmony export WebGLRenderTargetCube */
 /* unused harmony export WebGLRenderTarget */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return WebGLRenderer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return WebGLRenderer; });
 /* unused harmony export ShaderLib */
 /* unused harmony export UniformsLib */
 /* unused harmony export UniformsUtils */
@@ -328,7 +370,7 @@ animate();
 /* unused harmony export Line3 */
 /* unused harmony export Euler */
 /* unused harmony export Vector4 */
-/* unused harmony export Vector3 */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return Vector3; });
 /* unused harmony export Vector2 */
 /* unused harmony export Quaternion */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Color; });
@@ -375,11 +417,11 @@ animate();
 /* unused harmony export TubeBufferGeometry */
 /* unused harmony export TorusKnotGeometry */
 /* unused harmony export TorusKnotBufferGeometry */
-/* unused harmony export TorusGeometry */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return TorusGeometry; });
 /* unused harmony export TorusBufferGeometry */
 /* unused harmony export TextGeometry */
 /* unused harmony export TextBufferGeometry */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SphereGeometry; });
+/* unused harmony export SphereGeometry */
 /* unused harmony export SphereBufferGeometry */
 /* unused harmony export RingGeometry */
 /* unused harmony export RingBufferGeometry */
