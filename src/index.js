@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {TweenLite} from "gsap";
 
 const FULL_CIRCLE = Math.PI * 2;
 
@@ -12,13 +13,16 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 document.body.appendChild( renderer.domElement );
 
+
 //I WILL ATTEMPT TO MAKE A TORUS
+//success!
+/*
 const geometry = new THREE.Geometry();
 
 const circles = 360;
 const pointsOnCircles = 360;
 
-const tubeSize = 1;
+const tubeSize = 0.5;
 const radius = 3;
 
 const vertices = [];
@@ -51,13 +55,16 @@ for (let i = 0; i < circles; i++) {
     geometry.faces.push(new THREE.Face3(currentCircle + nextPointIndex,
       j + currentCircle,
       nextCircle + nextPointIndex));
+
   }
 }
 
 geometry.computeBoundingSphere();
 geometry.computeFaceNormals();
 geometry.mergeVertices();
-
+*/
+const geometry = new THREE.SphereGeometry(2,180, 180);
+//const geometry = new THREE.TorusGeometry(3, 1, 360, 18);
 const material = new THREE.MeshStandardMaterial( { color: 0x00ff00 } );
 const sphere = new THREE.Mesh( geometry, material );
 sphere.position.set(0,2,0);
@@ -108,10 +115,20 @@ scene.add( ground );
 
 camera.position.z = 10;
 
+const vectors = sphere.geometry.vertices.length;
+let random = Math.floor(Math.random() * vectors);
+const original = sphere.geometry.vertices.map((item) => ({x: item.x, y: item.y, z: item.z}));
+console.log(original);
 function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
-  sphere.rotation.x += 0.003;
-  //sphere.rotation.y += 0.01;
+
+  random = Math.floor(Math.random() * vectors);
+  let current = sphere.geometry.vertices[random];
+  let next = current.clone().multiplyScalar(1.5);
+  TweenLite.to(current, 1, {x: next.x, y: next.y, z: next.z , onComplete: (random) => {
+    TweenLite.to(sphere.geometry.vertices[random], 1, {x: original[random].x, y: original[random].y, z: original[random].z});
+  }, onCompleteParams: [random]});
+  sphere.geometry.verticesNeedUpdate = true;
 }
 animate();
