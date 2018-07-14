@@ -138,9 +138,9 @@ geometry.computeFaceNormals();
 geometry.mergeVertices();
 */
 //const geometry = new THREE.SphereGeometry(2,180, 180);
-const circles = 72;
+const circles = 128;
 const pointsOnCircle = 12;
-const geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* TorusGeometry */](10, 1, pointsOnCircle, circles);
+const geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["n" /* TorusGeometry */](30, 0.5, pointsOnCircle, circles);
 geometry.computeFaceNormals();
 // color: 0x00ff00
 const material = new __WEBPACK_IMPORTED_MODULE_0_three__["j" /* MeshStandardMaterial */]( {color: 0x00ff00} );
@@ -164,12 +164,12 @@ scene.add( hemiLightHelper );
 const directionalLight = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* DirectionalLight */]( 0xffffff, 1 );
 
 directionalLight.color.setHSL( 0.1, 1, 0.95 );
-directionalLight.position.set( -8, 12, 0 );
+directionalLight.position.set( -24, 24, 0 );
 scene.add( directionalLight );
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
-const d = 15;
+const d = 30;
 directionalLight.shadow.camera.left = -d;
 directionalLight.shadow.camera.right = d;
 directionalLight.shadow.camera.top = d;
@@ -192,16 +192,37 @@ ground.position.y = -6;
 ground.receiveShadow = true;
 scene.add( ground );
 
-camera.position.set(0,10,20);
+camera.position.set(0,10,40);
 camera.lookAt(new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* Vector3 */](0,0,0));
 
+let isPlaying = false;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioCtx.createAnalyser();
+analyser.fftSize = circles * 2;
+let frequencyArray = new Uint8Array(analyser.frequencyBinCount)
+function playAudio(ab) {
+  audioCtx.decodeAudioData(ab).then((buf) => {
+    const source = audioCtx.createBufferSource();
+    source.buffer = buf
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    source.start();
+    animate()
+  });
+}
+
+const reader = new FileReader();
+reader.onload = () => playAudio(reader.result);
+
+function handleFiles() {
+  const audio = reader.readAsArrayBuffer(this.files[0]);
+}
+
+document.getElementById("music").addEventListener("change", handleFiles, false);
+
 const vectors = sphere.geometry.vertices.length;
-console.log(sphere.geometry.vertices);
 let random = Math.floor(Math.random() * vectors);
 const original = sphere.geometry.vertices.map((item) => ({x: item.x, y: item.y, z: item.z}));
-console.log(sphere.geometry);
-
-let randomAnimate = true;
 
 const update = () => { sphere.geometry.verticesNeedUpdate = true; };
 
@@ -212,42 +233,29 @@ function animateCircle(circleNumber, scalar) {
     const currentVertex = sphere.geometry.vertices[currentVertexIndex];
     sphere.geometry.colors[startVertex + i * circleNumber] = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Color */]( 0xff0000 );
     const normal = sphere.geometry.faces.filter((face) => face.a === currentVertexIndex || face.b === currentVertexIndex)[0].normal;
-    const next = currentVertex.clone().add(normal.clone().multiplyScalar(scalar));
+    const origVector = new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* Vector3 */](original[currentVertexIndex].x, original[currentVertexIndex].y, original[currentVertexIndex].z)
+    const next = origVector.add(normal.clone().multiplyScalar(scalar));
     //const next = currentVertex.clone().multiplyScalar(1.5);
-    __WEBPACK_IMPORTED_MODULE_1_gsap__["TweenLite"].to(currentVertex, 0.2, {x: next.x, y: next.y, z: next.z , onComplete: (position) => {
-      __WEBPACK_IMPORTED_MODULE_1_gsap__["TweenLite"].to(sphere.geometry.vertices[position], 0.2, {x: original[position].x,
-        y: original[position].y,
-        z: original[position].z,
-        onUpdate: update,
-        onComplete: () => {randomAnimate = true;}
-      });
-    }, onCompleteParams: [currentVertexIndex]
-    , onUpdate: update,});
+    //console.log(circleNumber);
+    currentVertex.x = next.x;
+    currentVertex.y = next.y;
+    currentVertex.z = next.z;
+
   }
-}
-
-function animateRegion(number) {
-  const a = number - 1 < 0 ? circles - 1 : number - 1;
-  const b = number;
-  const c = (number + 1) % circles;
-  animateCircle(a, 1.3);
-  animateCircle(b, 1.5);
-  animateCircle(c, 1.3);
-}
-
-function randomRegion() {
-  return Math.floor(Math.random() * circles);
 }
 
 function animate() {
 	requestAnimationFrame( animate );
-	renderer.render( scene, camera );
-  if (randomAnimate) {
-    animateRegion(randomRegion());
-    randomAnimate = false;
+  const dataArray = new Uint8Array(analyser.frequencyBinCount)
+  analyser.getByteFrequencyData(dataArray)
+  for (let i = 0; i < dataArray.length; i = i + 1) {
+    animateCircle(i, dataArray[i] / 100)
   }
+  update();
+  renderer.render( scene, camera );
 }
-animate();
+
+renderer.render( scene, camera );
 
 
 /***/ }),
