@@ -196,10 +196,8 @@ camera.position.set(0,10,40);
 camera.lookAt(new __WEBPACK_IMPORTED_MODULE_0_three__["o" /* Vector3 */](0,0,0));
 
 const vectors = sphere.geometry.vertices.length;
-console.log(sphere.geometry.vertices);
 let random = Math.floor(Math.random() * vectors);
 const original = sphere.geometry.vertices.map((item) => ({x: item.x, y: item.y, z: item.z}));
-console.log(sphere.geometry);
 
 let randomAnimate = true;
 
@@ -244,7 +242,7 @@ function randomRegion() {
 
 function animate() {
 	requestAnimationFrame( animate );
-	renderer.render( scene, camera );
+
   if (randomAnimate) {
     animateRegion(randomRegion());
     animateRegion(randomRegion());
@@ -253,7 +251,35 @@ function animate() {
   }
 
 }
-animate();
+renderer.render( scene, camera );
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioCtx.createAnalyser();
+
+function playAudio(ab) {
+  audioCtx.decodeAudioData(ab).then((buf) => {
+    console.log(buf)
+    const source = audioCtx.createBufferSource();
+    source.buffer = buf
+    source.connect(audioCtx.destination);
+    source.connect(analyser);
+    source.start(0, 30);
+    analyser.fftSize = 2048;
+    const dataArray = new Float32Array(analyser.frequencyBinCount)
+    analyser.getFloatFrequencyData(dataArray)
+    console.log(dataArray)
+
+  });
+}
+
+const reader = new FileReader();
+reader.onload = () => playAudio(reader.result);
+
+function handleFiles() {
+  const audio = reader.readAsArrayBuffer(this.files[0]);
+}
+
+document.getElementById("music").addEventListener("change", handleFiles, false);
 
 
 /***/ }),
